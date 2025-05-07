@@ -11,12 +11,14 @@ Build an application using the star wars open api using your prefered tools and 
 - Home page should load the list of characters
 - Home page should be able to sort names ascending/descending
 - Home page should be able to filter list by film, planet or species
+- Home page should support pagination
 - Detail page should show relatable information based on their type:
 - - Character shows others living in their same planet
 - - Films shows other characters in the film
 - - Planets shows other characthers living there
 - - Species shows other characters of the same species
 - Deployed website
+- Pages should load the same information when shared
 
 ### Bonus
 - Add search by name or title in homepage
