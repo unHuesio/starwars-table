@@ -1,14 +1,58 @@
 "use client";
 import Card from "@/components/card";
-import { useApiCharacter } from "@/hooks/useApiCharacter";
-import { useState } from "react";
+import { useApiCharacterInfinite } from "@/hooks/useApiCharacter";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 export default function Home() {
-  const { character, isLoading, isError } = useApiCharacter();
+  const { 
+    characters, 
+    isLoading, 
+    error: isError,
+    isLoadingMore,
+    isEmpty,
+    isReachingEnd,
+    size,
+    setSize
+  } = useApiCharacterInfinite();
+
   const [filterFilm, setFilterFilm] = useState("xx");
   const [filterPlanet, setFilterPlanet] = useState("xx");
   const [filterSpecies, setFilterSpecies] = useState("xx");
   const [sortOrder, setSortOrder] = useState("Name");
+  
+  // Create a ref for the sentinel element (to observe for intersection)
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  // Load more data when the sentinel element is visible
+  const loadMoreCharacters = useCallback(() => {
+    if (!isLoadingMore && !isReachingEnd) {
+      setSize(size + 1);
+    }
+  }, [isLoadingMore, isReachingEnd, setSize, size]);
+
+  // Set up intersection observer to detect when user scrolls to bottom
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // When sentinel element is visible, load more data
+        if (entries[0].isIntersecting) {
+          loadMoreCharacters();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [loadMoreCharacters]);
 
   return (
     <div className="flex flex-col p-8 pb-20 gap-8 sm:p-20">
@@ -43,53 +87,32 @@ export default function Home() {
       </div>
 
       <main className="mt-4">
-        {isLoading && <p>Loading...</p>}
+        {isLoading && !characters.length && <p>Loading...</p>}
         {isError && <p>Something went wrong...</p>}
-        {character && (
-          <div className="grid grid-cols-3 gap-2">
-            {/* First row */}
-            <Card 
-              letter="L" 
-              name="Luke Skywalker" 
+        {isEmpty && <p>No characters found</p>}
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {characters.map((character, index) => (
+            <Card
+              key={character.uid}
+              character={character}
+              highlight={index % 5 === 1} // Highlight every 5th card (arbitrary pattern)
             />
-            <Card 
-              letter="C" 
-              name="C3-PO" 
-              highlight={true}
-            />
-            <Card 
-              letter="R" 
-              name="R2-D2" 
-            />
-            
-            {/* Second row */}
-            <Card 
-              letter="D" 
-              name="Darth Vader" 
-            />
-            <Card 
-              letter="L" 
-              name="Leia Organa" 
-            />
-            <Card 
-              letter="O" 
-              name="Owen Lars" 
-            />
-            
-            {/* Third row */}
-            <Card 
-              letter="B" 
-              name="Beru Whitesun Lars" 
-            />
-            <Card 
-              letter="R" 
-              name="R5-D4" 
-            />
-            <Card 
-              letter="B" 
-              name="Biggs Darklighter" 
-            />
+          ))}
+        </div>
+        
+        {/* Sentinel element for infinite scroll */}
+        {!isReachingEnd && (
+          <div 
+            ref={observerTarget} 
+            className="h-4 mt-8 text-center"
+          >
+            {isLoadingMore && <p>Loading more characters...</p>}
           </div>
+        )}
+        
+        {isReachingEnd && characters.length > 0 && (
+          <p className="text-center mt-8">You&apos;ve reached the end of the galaxy!</p>
         )}
       </main>
     </div>
