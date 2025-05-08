@@ -1,23 +1,96 @@
 "use client";
-import Card, { Character } from "@/components/card";
+import Card from "@/components/card";
 import { useApiCharacter } from "@/hooks/useApiCharacter";
+import { useState } from "react";
 
 export default function Home() {
-  const { character, isLoading, isError } = useApiCharacter()
+  const { character, isLoading, isError } = useApiCharacter();
+  const [filterFilm, setFilterFilm] = useState("xx");
+  const [filterPlanet, setFilterPlanet] = useState("xx");
+  const [filterSpecies, setFilterSpecies] = useState("xx");
+  const [sortOrder, setSortOrder] = useState("Name");
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <h1 className="font-semibold text-6xl">Star Wars Universe.</h1>
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+    <div className="flex flex-col p-8 pb-20 gap-8 sm:p-20">
+      <h1 className="font-bold text-6xl sm:text-8xl">
+        Star Wars<br />Universe.
+      </h1>
+      
+      <div className="my-4">
+        <p className="mb-4">What are you looking for?</p>
+        
+        <div className="flex flex-wrap items-center gap-6">
+          <div className="filter-group">
+            <label className="mr-2">Film</label>
+            <button className="px-2">{filterFilm}</button>
+          </div>
+          
+          <div className="filter-group">
+            <label className="mr-2">Planet</label>
+            <button className="px-2">{filterPlanet}</button>
+          </div>
+          
+          <div className="filter-group">
+            <label className="mr-2">Species</label>
+            <button className="px-2">{filterSpecies}</button>
+          </div>
+          
+          <div className="filter-group ml-auto">
+            <label className="mr-2">Sort</label>
+            <button className="px-2">{sortOrder}</button>
+          </div>
+        </div>
+      </div>
+
+      <main className="mt-4">
         {isLoading && <p>Loading...</p>}
         {isError && <p>Something went wrong...</p>}
-        {character && <ul className="grid xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {character.results.map((c: Character) => (
-            <Card
-              key={c.uid}
-              character={c}
+        {character && (
+          <div className="grid grid-cols-3 gap-2">
+            {/* First row */}
+            <Card 
+              letter="L" 
+              name="Luke Skywalker" 
             />
-          ))}
-        </ul>}
+            <Card 
+              letter="C" 
+              name="C3-PO" 
+              highlight={true}
+            />
+            <Card 
+              letter="R" 
+              name="R2-D2" 
+            />
+            
+            {/* Second row */}
+            <Card 
+              letter="D" 
+              name="Darth Vader" 
+            />
+            <Card 
+              letter="L" 
+              name="Leia Organa" 
+            />
+            <Card 
+              letter="O" 
+              name="Owen Lars" 
+            />
+            
+            {/* Third row */}
+            <Card 
+              letter="B" 
+              name="Beru Whitesun Lars" 
+            />
+            <Card 
+              letter="R" 
+              name="R5-D4" 
+            />
+            <Card 
+              letter="B" 
+              name="Biggs Darklighter" 
+            />
+          </div>
+        )}
       </main>
     </div>
   );
