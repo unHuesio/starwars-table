@@ -28,9 +28,22 @@ body {
 }
 
 .card{
-  background: var(--secondary)
+  background: var(--secondary);
+  transition: all 0.2s ease;
 }
 
 .card:hover{
-  background: var(--secondary-action)
+  background: var(--secondary-action);
+}
+
+.filter-group button {
+  border: 1px solid var(--foreground);
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.filter-group button::after {
+  content: '•';
+  margin-left: 6px;
 }
