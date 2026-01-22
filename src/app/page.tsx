@@ -21,7 +21,6 @@ export default function Home() {
 
   const loadMoreItems = () => {
     if (loadingMore) return; // Prevent multiple loads
-    console.log("Current data:", itemsRef.current);
     if(itemsRef.current && itemsRef.current.next) {
       setLoadingMore(true);
       const nextParams = itemsRef.current.next.split("api/people")[1];
