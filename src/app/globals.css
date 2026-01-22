@@ -28,7 +28,8 @@ body {
 }
 
 .card{
-  background: var(--secondary)
+  background: var(--secondary);
+  cursor: pointer;
 }
 
 .card:hover{
