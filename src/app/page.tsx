@@ -13,6 +13,9 @@ export default function Home() {
   const speciesResponse = useApiType("species")
   const [items, setItems] = useState<{results: Character[]; next: string}>({results: [], next: ""});
   const itemsRef = useRef(items); // Ref to hold current items for scroll handler
+  const [film, setFilm] = useState("");
+  const [planet, setPlanet] = useState("");
+  const [species, setSpecies] = useState("");
 
   // Update ref whenever items changes
   useEffect(() => {
@@ -35,9 +38,24 @@ export default function Home() {
     }
   }
 
+  const handleFilmChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilm(e.target.value);
+  }, [film]);
+
+  const handlePlanetChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setPlanet(e.target.value);
+  }, [planet]);
+  
+  const handleSpeciesChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSpecies(e.target.value);
+  }, [species]);
+
   useEffect(() => {
     if(data && !isLoading && !isError) {
-      setItems(prev => ({ results: [...prev.results, ...data.results], next: data.next })); // Append results
+      setItems(prev => {
+        const newResults = data.results.filter(newItem => !prev.results.some(existing => existing.uid === newItem.uid));
+        return { results: [...prev.results, ...newResults], next: data.next };
+      }); // Append only new results, avoiding duplicates
       setLoadingMore(false);
     }
   }, [data, isLoading, isError])
@@ -58,7 +76,7 @@ export default function Home() {
               options={{
                 type: "Film",
                 list: filmResponse.data ? filmResponse.data.result.map((f: any) => f.properties.title) : [],
-                onChange: (e) => console.log(e.target.value)
+                onChange: handleFilmChange
               }}
               isLoading={filmResponse.isLoading}
               hasError={filmResponse.isError}
@@ -69,7 +87,7 @@ export default function Home() {
               options={{
                 type: "Planet",
                 list: planetResponse.data ? planetResponse.data.results.map((p: any) => p.name) : [],
-                onChange: (e) => console.log(e.target.value)
+                onChange: handlePlanetChange
               }}
               isLoading={planetResponse.isLoading}
               hasError={planetResponse.isError}
@@ -80,7 +98,7 @@ export default function Home() {
               options={{
                 type: "Species",
                 list: speciesResponse.data ? speciesResponse.data.results.map((s: any) => s.name) : [],
-                onChange: (e) => console.log(e.target.value)
+                onChange: handleSpeciesChange
               }}
               isLoading={speciesResponse.isLoading}
               hasError={speciesResponse.isError}
@@ -94,7 +112,7 @@ export default function Home() {
         {items && <ul className="grid xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {items.results.map((c: Character) => (
             <Card
-              key={c.uid+c.name}
+              key={c.uid}
               character={c}
             />
           ))}
